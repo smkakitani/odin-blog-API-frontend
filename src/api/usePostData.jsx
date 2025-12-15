@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 // 
 export default function usePostData(formData, endpoint) {
-  // const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +13,8 @@ export default function usePostData(formData, endpoint) {
   useEffect(() => {
     if (formData) {
       const postForm = async () => {
-        const url = `http://localhost:3030/${endpoint}`; // TODO: change PORT
+        // http://localhost:8080/ for server
+        const url = `http://localhost:8080/${endpoint}`; // TODO: change PORT
 
         setError(null);
         setIsLoading(true);
@@ -22,14 +22,23 @@ export default function usePostData(formData, endpoint) {
         try {
           const response = await fetch(url, {
             method: "POST",
-            // headers: '', // headers???
-            body: formData, // Should use new FormData()
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData), 
           });
 
-          setResult(response.json());
-          // return response.json();
+          const res = await response.json();
+
+          if (!response.ok) {
+            // Server sends json with errors message
+            throw res;
+          }
+          
+          setResult(res);
         } catch (err) {
-          console.error(err);
+          console.error('usePostData error: ',err);
           setError(err);
         } finally {
           setIsLoading(false);
@@ -37,7 +46,7 @@ export default function usePostData(formData, endpoint) {
       }
 
       postForm();
-      return () => {};
+      return () => { setResult(null) };
     }
   },[formData, endpoint]);
 
