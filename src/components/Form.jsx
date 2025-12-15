@@ -1,7 +1,6 @@
 // Styles?
 
-// Custom hook
-import usePostData from "../api/usePostData";
+
 
 // Components
 import Button from "./Button";
@@ -9,56 +8,47 @@ import Button from "./Button";
 
 
 // 
-function Form({ fields, }) { // fields -> []
-  const { error, result, isLoading } = usePostData(null, null);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-
-    const form = e.target;
-    // TODO: insert validation
-
-    // if (valid) {
-
-    // }
-  }
-
-
+function Form({ 
+  fields, 
+  handleSubmit, 
+  handleChange, 
+  buttonText, 
+  isError, 
+  message, 
+}) {
 
   return (
     <form onSubmit={handleSubmit}  noValidate>
       {fields.map((item) => (
-        <Field />
+        <Field key={item.name}
+          {...item}
+          onChange={handleChange}
+        />
       ))}
-      {error}
+      {isError && message.map((err) => <p key={err.path}>{err.msg}</p> )}
 
-      <Button />
+      <Button 
+        type={"submit"}
+        text={buttonText}
+      />
     </form>
   );
 }
 
-const Field = (props/* { type, name, value, minLength, } */) => {
-  let type = props.type;
-  let name = props.name;
-  let className = props.className;
-  let value = props.value;
-  let minLength = props.minLength;
-  let maxLength = props.maxLength;
-  let pattern = props.pattern;
-  let labelText = props.labelText;
-  
+const Field = (props) => {
+  /* TODO: add visibility change for password? */
 
   return (
-    <label>{labelText}
-      <input 
-        type={type} // email, text (names), password, 
-        name={name}
-        id={name}
-        className={className}
-        value={value}
-        minLength={minLength}
-        maxLength={maxLength}
-        pattern={pattern}
+    <label>{props.labelText}
+      <input onChange={props.onChange}
+        type={props.type} // email, text (names), password, 
+        name={props.name}
+        id={props.name}
+        className={props.className}
+        value={props.value}
+        minLength={props.minLength}
+        maxLength={props.maxLength}
+        pattern={props.pattern}
 
         required // all fields are required!?
       />
