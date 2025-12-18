@@ -3,7 +3,7 @@
 // Custom hook
 import usePostData from "../api/usePostData";
 // Components
-import Form from "../components/Form";
+import { Form, Field } from "../components/Form";
 // React | Router
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -20,7 +20,7 @@ function SignUp() {
     password: "",
     confirmPassword: "",
   });
-  // TODO: should create another author?
+  // TODO: should be able to create another author?
   /* const authorSignup = [
     {
       type: "text",
@@ -70,9 +70,8 @@ function SignUp() {
       className: "",
       value: user.email,
       minLength: 4,
-      // maxLength: '',
-      // pattern: '[a-zA-ZáéíóúàâêôãõüçÁÉÍÓÚÀÂÊÔÃÕÜÇ\\s\\-]{2,32}',
-      // pattern: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i,
+      maxLength: 254,
+      // pattern: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, // TODO: validate
       labelText: "E-mail: ",
     },
     {
@@ -82,7 +81,6 @@ function SignUp() {
       value: user.password,
       minLength: 6,
       maxLength: 64,
-      // pattern: '[a-zA-ZáéíóúàâêôãõüçÁÉÍÓÚÀÂÊÔÃÕÜÇ\\s\\-]{2,32}',
       labelText: "Password: ",
     },
     {
@@ -92,7 +90,6 @@ function SignUp() {
       value: user.confirmPassword,
       minLength: 6,
       maxLength: 64,
-      // pattern: '[a-zA-ZáéíóúàâêôãõüçÁÉÍÓÚÀÂÊÔÃÕÜÇ\\s\\-]{2,32}',
       labelText: "Confirm your password: ",
     }
   ];
@@ -108,11 +105,12 @@ function SignUp() {
   const handlePost = async (e) => {
     e.preventDefault();
 
+    // TODO: insert frontend validation, then send to server
     // const isValid = e.target.checkValidity();
-    // TODO: insert validation?
+
     const form = new FormData(e.target);
     const formJson = Object.fromEntries(form.entries());
-    // console.log(Object.fromEntries(formJson.entries()));
+
     setData(formJson);
   }
 
@@ -126,15 +124,20 @@ function SignUp() {
   
   return (
     <div>
-      signup page??
+      Sign up here!
       <Form 
-        fields={userSignup} 
-        handleSubmit={handlePost} 
-        handleChange={handleChange}
+        handleSubmit={handlePost}
         buttonText={"sign up"}
         isError={error}
         message={error?.err}
-      />
+      >
+        {userSignup.map((item) => 
+          <Field key={item.name}
+            {...item}
+            onChange={handleChange}
+          />
+        )}
+      </Form>
     </div>
   );
 }

@@ -2,8 +2,9 @@
 
 // Custom hook
 import usePostData from "../api/usePostData";
+import { useAuth } from "../utils/AuthContext";
 // Components
-import Form from "../components/Form";
+import { Form, Field } from "../components/Form";
 // React | Router
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -15,11 +16,12 @@ function LogIn() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const { error, result, isLoading } = usePostData(data, "log-in");
+  const { onLogin } = useAuth();
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
-  const login = [
+  const userLogin = [
     {
       type: "email",
       name: "email",
@@ -39,19 +41,19 @@ function LogIn() {
     },
   ];
 
+  // fix: trying to use Auth
   useEffect(() => {
-    if (result?.status === 200 /* && !error */) {
-      // console.log(result);
-    // Store token on localStorage
-    const { token, user } = result;
-    console.log(token,localStorage.length);
-    // localStorage.setItem("token", JSON.stringify(token));
-    localStorage.setItem("token", token);
+    if (result?.status === 200) {
+      const { token, user } = result;
+      const credencials = { user, token };
+      
+      // Send data to auth context
+      onLogin(credencials);
 
-    // Redirect user... home
-    navigate("/", { replace: true });
+      // Redirect user... home
+      navigate("/", { replace: true });
     }
-  },[result, navigate]);
+  },[result, navigate, onLogin]);
 
   const handleChange = (e) => {
     setUser({
@@ -64,23 +66,29 @@ function LogIn() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // TODO: insert frontend validation, then send to server
+
     const form = new FormData(e.target);
     const formJson = Object.fromEntries(form.entries());
-    // console.log(Object.fromEntries(formJson.entries()));
-    setData(formJson);
-    // TODO: insert validation
+    
+    setData(formJson);    
   }
 
   return (
-    <div>Login page??
+    <div>Log in
       <Form 
-        fields={login}
         handleSubmit={handleLogin}
-        handleChange={handleChange}
         buttonText={"log in"}
         isError={error}
         message={error?.err}
-      />
+      >
+        {userLogin.map((item) => 
+          <Field key={item.name}
+            {...item}
+            onChange={handleChange}
+          />
+        )}
+      </Form>
     </div>
   );
 }

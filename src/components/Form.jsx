@@ -1,7 +1,5 @@
 // Styles?
 
-
-
 // Components
 import Button from "./Button";
 
@@ -9,39 +7,37 @@ import Button from "./Button";
 
 // 
 function Form({ 
-  fields, 
+  children,
+  // 
   handleSubmit, 
-  handleChange, 
-  buttonText, 
-  isError, 
   message, 
+  isError, 
+  // 
+  buttonText,
+  isDisabled,
 }) {
 
   return (
     <form onSubmit={handleSubmit}  noValidate>
-      {fields.map((item) => (
-        <Field key={item.name}
-          {...item}
-          onChange={handleChange}
-        />
-      ))}
-      {isError && message.map((err) => <p key={err.path}>{err.msg}</p> )}
-
+      {children}
+      {isError && message.map((err) => <p key={err.path}>{err.msg}</p> )}      
       <Button 
         type={"submit"}
         text={buttonText}
+        isDisabled={isDisabled}
       />
     </form>
   );
 }
 
 const Field = (props) => {
-  /* TODO: add visibility change for password? */
+  /* TODO: add visibility change for password */
 
   return (
     <label>{props.labelText}
-      <input onChange={props.onChange}
-        type={props.type} // email, text (names), password, 
+      <input 
+        onChange={props.onChange}
+        type={props.type} 
         name={props.name}
         id={props.name}
         className={props.className}
@@ -65,4 +61,7 @@ const Field = (props) => {
 
 
 
-export default Form;
+export {
+  Form,
+  Field,
+};

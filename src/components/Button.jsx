@@ -3,12 +3,13 @@
 
 
 // 
-function Button({ type, text, handleClick, className }) {
+function Button({ type = "button", text, handleClick, className, isDisabled = false }) {
   return (
     <button
-      type={type ? type : "button"}
+      type={type}
       onClick={handleClick}
       className={className}
+      disabled={isDisabled}
     >
       {text}
     </button>
