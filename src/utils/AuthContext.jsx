@@ -6,35 +6,37 @@ import { createContext, useContext, useState } from "react";
 // Create default context
 const AuthContext = createContext({
   token: "",
-  user: {},
+  user: "",
   onLogin: () => {},
   onLogout: () => {},
 });
 
 // Create custom provider component
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(() => localStorage.getItem("user") ?? "");
   const [token, setToken ] = useState(() => localStorage.getItem("token") ?? "");
 
   // Get user's token
   const handleLogin = async (userData) => {
     const user = userData;
     const userToken = user.token;
+    const username = user.user.username;
 
     setToken(userToken);
-    setUser(user.username);
+    setUser(username);
 
     // Keep user logged in even after refreshing page
     localStorage.setItem("token", userToken);
-    // localStorage.setItem("token", JSON.stringify(token));
-    // console.log("token:",userToken);
+    localStorage.setItem("user", username);
   }
 
   const handleLogout = () => {
     setToken("");
+    setUser("");
 
     // Remove token from localStorage
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const value = {
@@ -59,7 +61,6 @@ const useAuth = () => {
 };
 
 export {
-  // AuthContext,
   AuthProvider,
   useAuth,
 };
