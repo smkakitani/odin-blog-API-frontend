@@ -20,7 +20,7 @@ const AuthProvider = ({ children }) => {
   const handleLogin = async (userData) => {
     const user = userData;
     const userToken = user.token;
-    const username = user.user.username;
+    const username = user.user.username ?? user.user.firstName;
 
     setToken(userToken);
     setUser(username);
