@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 import Posts from "../pages/Posts";
 import SignUp from "../pages/SignUp";
 import LogIn from "../pages/LogIn";
+import User from "../pages/User";
 
 
 
@@ -18,6 +19,7 @@ const routes = [
       { path: "sign-up", element: <SignUp /> },
       { path: "log-in", Component: LogIn },
       { path: "posts/:postId?", Component: Posts },
+      { path: "user/:username", Component: User },
     ],
   },
 ];
