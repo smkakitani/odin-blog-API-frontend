@@ -29,7 +29,7 @@ function NavBar() {
         {!token ? <li>
           <Link to={menuList[2]}>{menuList[2]}</Link>
         </li> : <li>
-          <Link to={"user/" + user}>hi, {user}</Link>
+          <Link to={user.type + "/" + user.username}>hi, {user.username}</Link>
         </li>}
         {/* Shows sign up if there's no user */}
         {!token && <li>

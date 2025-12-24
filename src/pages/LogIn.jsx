@@ -7,13 +7,11 @@ import { useAuth } from "../utils/AuthContext";
 import { Form, Field } from "../components/Form";
 // React | Router
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 
 
 
 // 
 function LogIn() {
-  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const { error, result, isLoading } = usePostData(data, "log-in");
   const { onLogin } = useAuth();
@@ -41,26 +39,22 @@ function LogIn() {
     },
   ];
 
-  // fix: trying to use Auth
   useEffect(() => {
     if (result?.status === 200) {
       const { token, user } = result;
       const credencials = { user, token };
       
       // Send data to auth context
-      onLogin(credencials);
-
-      // Redirect user... home
-      navigate("/", { replace: true });
+      onLogin(credencials); 
     }
-  },[result, navigate, onLogin]);
+
+  },[result, onLogin]);
 
   const handleChange = (e) => {
     setUser({
       ...user,
       [e.currentTarget.name]: e.currentTarget.value,
     });
-    // console.log('login: ',e.currentTarget.value);
   };
 
   const handleLogin = async (e) => {

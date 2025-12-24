@@ -1,42 +1,58 @@
 // React
 import { createContext, useContext, useState } from "react";
+import { useNavigate } from "react-router";
 
 
 
 // Create default context
 const AuthContext = createContext({
   token: "",
-  user: "",
+  user: {},
   onLogin: () => {},
   onLogout: () => {},
 });
 
 // Create custom provider component
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => localStorage.getItem("user") ?? "");
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
   const [token, setToken ] = useState(() => localStorage.getItem("token") ?? "");
+  const navigate = useNavigate();
 
   // Get user's token
   const handleLogin = async (userData) => {
-    const user = userData;
-    const userToken = user.token;
-    const username = user.user.username ?? user.user.firstName;
+    const userToken = userData.token;
+    const userName = userData.user.username ?? userData.user.firstName;
+    const userType = (typeof userData.user.id === "number") ? "author" : "user";
+
+    const userObj = {
+      username: userName,
+      id: userData.user.id,
+      type: userType,
+    };
 
     setToken(userToken);
-    setUser(username);
+    setUser(userObj);
 
     // Keep user logged in even after refreshing page
     localStorage.setItem("token", userToken);
-    localStorage.setItem("user", username);
+    localStorage.setItem("user", JSON.stringify(userObj));
+
+    if (userType === "author") {
+      navigate(`author/${userName}`);
+    } else {
+      navigate("/", { replace: true });
+    }
   }
 
   const handleLogout = () => {
     setToken("");
-    setUser("");
+    setUser(null);
 
     // Remove token from localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+    navigate("/");
   };
 
   const value = {
