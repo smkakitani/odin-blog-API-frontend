@@ -1,5 +1,5 @@
 // React
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { useNavigate } from "react-router";
 
 
@@ -19,7 +19,7 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Get user's token
-  const handleLogin = async (userData) => {
+  const handleLogin = useCallback((userData) => {
     const userToken = userData.token;
     const userName = userData.user.username ?? userData.user.firstName;
     const userType = (typeof userData.user.id === "number") ? "author" : "user";
@@ -42,7 +42,7 @@ const AuthProvider = ({ children }) => {
     } else {
       navigate("/", { replace: true });
     }
-  }
+  }, [navigate]);
 
   const handleLogout = () => {
     setToken("");
