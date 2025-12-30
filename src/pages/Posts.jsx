@@ -1,65 +1,55 @@
 // Styles
 
-// Custom Hook
+// Custom Hook | utils
 import useGetData from "../api/useGetData";
+import { prettifyDate } from "../utils/lib";
+import { useAuth } from "../utils/AuthContext";
+import usePostData from "../api/usePostData";
 // Components
-
+import Button from "../components/Button";
+import RenderHtml from "../components/RenderHtml";
 // React | Router
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-// utils
-import { prettifyDate } from "../utils/lib";
 
 
 
 // 
 function Posts() {
-  const [endpoint, setEndpoint] = useState("posts");
-  const { error, loading, data } = useGetData(endpoint);
-  // const [post, setPost] = useState(null);
-
-  const { postId } = useParams(); // if no postId is set, it returns undefined
-  // post return the most recent post if there's no postId
-  let post;
+  const { user, token, onLogout } = useAuth();
+  const { error, loading, data } = useGetData("posts");
+  const { postId } = useParams();
+  // Local mutation
+  let post = {};
 
   // Set most recent post as default
   if (!postId && data) {
-    // console.log('data is array?',Array.isArray(data), data);
-    // Get lastest post
+    // Get lastest post to be displayed as default
     const lastPost = data.reduce((maxDate, currDate) => {
       return (new Date(currDate.createdAt) > new Date(maxDate.createdAt)) ? currDate : maxDate;
     }, data[0]);
-    // console.log(lastPost);
+
     post = lastPost;
   }
 
   if (data && postId) {
     post = data.find((post) => post.id === parseInt(postId));
   }
-  // console.log('post is array?',Array.isArray(post), post);
-
-  // useEffect(() => {
-  //   // sync postId with data?
-  //   if (data) {
-  //     setPost(data.filter((post) => post.id === parseInt(postId)));
-  //     // const post = data.filter((post) => post.id === parseInt(postId));
-  //   }
-  // }, [data, postId]);  
 
   return (
     <div>
-      posts =D
+      <h2>posts</h2>
       {data && <PostsPreview posts={data}/>}
       {(data && post) && <DisplayPost 
         key={post.id}
-        post={post}      
-      />}      
-
+        post={post}
+        user={user}
+        token={token}
+        onLogout={onLogout}
+      />}
     </div>
   );
 }
-
-
 
 function PostsPreview({ posts }) {
   // Sidebar to display posts
@@ -86,22 +76,61 @@ function PostsPreview({ posts }) {
   );
 }
 
-function DisplayPost({ post }) {
+function DisplayPost({ post, user, token, onLogout }) {
   const { error, loading, data } = useGetData(`posts/${post.id}/comments`);
-  const comments = data?.comments;
+  const [userComment, setUserComment] = useState(null);
+  const { error: postError, result, isLoading } = usePostData(userComment, `posts/${post.id}/comments`, token);
+  const [commentList, setCommentList] = useState([]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>huh oh x_x</p>
+  // Get triggered when user tries to send comment on post 
+  useEffect(() => {
+    if (postError?.status === 401) {
+      alert(postError.message.name);
+      onLogout();
+    }
+  }, [onLogout, postError]);
 
-  // console.dir(comments);
+  useEffect(() => {
+    if (data) {
+      setCommentList(() => data.comments);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (result) {
+      setCommentList(cl => [...cl, result]);
+    }
+  }, [result]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const form = new FormData(e.target);
+    const formJson = Object.fromEntries(form.entries());
+    
+    // console.log(formJson);
+    setUserComment(formJson);
+  };
+
+  if (loading) return <p>Loading post...</p>;
+
   return (
     <div>
       <h3>{post.title}</h3>
-      <p>{prettifyDate(post.createdAt)}</p>
-      <div>{post.content}</div>
+      <p>{prettifyDate(post.createdAt, "fullDate")}</p>
+      <RenderHtml display={post.content}/>
+      <p>{post.author.firstName + " " + post.author.lastName}</p>
       <hr />
-      {(data && (comments.length === 0)) && <p>No comments yet ;-;</p>}
-      {(data && comments) && comments.map((comment) => (
+      {/* TODO: comments count to be up to date */}
+      {(data && (commentList?.length === 0)) ? <p>sem comentários</p> : <p>commentários({post._count.comments})</p>}
+
+      {/* Field for user to comment */}
+      {(user?.type === "user") && <CreateComment 
+        token={token}
+        handleSubmit={handleSubmit}
+      />}
+      {isLoading && <p>loadings com</p>}
+      {(data && commentList) && commentList.map((comment) => (
         <DisplayComment 
           {...comment}
           key={comment.id}        
@@ -118,6 +147,39 @@ function DisplayComment(comment) {
       <div>{comment.username.username} | {prettifyDate(comment.createdAt)}</div>
       <p>{comment.content}</p>
     </section>
+  );
+}
+
+function CreateComment({ token, handleSubmit }) {
+  // TODO: after submit, reset <textarea>!
+  const [comment, setComment] = useState("");
+
+  const handleChange = (e) => {
+    setComment(e.currentTarget.value);
+  };
+
+  return (
+    <div>
+      Postar um comentário
+      <form onSubmit={handleSubmit}>
+        <label>
+          <textarea 
+            cols={50}
+            rows={10}
+            name="content" 
+            id="newComment"
+            value={comment}
+            disabled={!token}
+            onChange={handleChange}></textarea>
+        </label>
+        <Button 
+          type={"submit"} 
+          isDisabled={comment.length === 0}
+          text={"comentar"}
+        />
+      </form>
+      <p>{comment.length} caractere{comment.length >= 2 ? "s" : ""}</p>
+    </div>
   );
 }
 
