@@ -3,38 +3,47 @@
 // React
 import { useEffect, useState } from "react";
 // Router
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 // Components
-import { Field, Form } from "../components/Form";
-// Custom hook
+import { Form } from "../components/Form";
+import Button from "../components/Button";
+// Custom hook | utils
 import { useAuth } from "../utils/AuthContext";
-import useGetData from "../api/useGetData";
-import usePostData from "../api/usePostData";
-import usePutData from "../api/usePutData";
 import { prettifyDate } from "../utils/lib";
+import useGetData from "../api/useGetData";
+import usePutData from "../api/usePutData";
+import useDelData from "../api/useDelData";
 
 
 
 // 
 export default function User() {
   const { onLogout, user, token } = useAuth();
-  const navigate = useNavigate();
-  const endpoint = `visitors/${user}`;
-  const { error, loading, data } = useGetData(endpoint, token);
+  const endpoint = `visitors/${user?.username}`;
+  const { error, loading, data, refetchData } = useGetData(endpoint, token);
+  const { error: delError, result, delData } = useDelData();
   
-  if (error) {
-    console.log(error.status);
-    if (error.status === 401) {
+  useEffect(() => {
+    if (error?.status === 401 || delError?.status === 401) {
       onLogout();
-      console.log("logging out...");
-
-      // Redirect user
-      navigate("/log-in");
     }
-  }
+  }, [error, delError, onLogout]);
+
+  useEffect(() => {
+    if (result && delError === null) {
+      refetchData();
+    } else {
+      console.log("tried to refetch user's comments but FAILED!!! ):");
+    }
+  }, [result, delError, refetchData]);
+
+  const handleDeleteComment = async (commentId, postId) => {
+    const path = `posts/${postId}/comments/${commentId}`
+    await delData(path, token);
+  };
 
   return (
-    <div>Olá, {user} 
+    <div>Olá, {user?.username || "unknown"} 
       <Link to="/" onClick={onLogout}>log-out</Link>
       {loading && <p>loading your data...</p>}
       {data && <EditUser 
@@ -42,26 +51,26 @@ export default function User() {
         token={token}
         endpoint={endpoint}  
       />}
-      <UserComment />
+      {data && <UserComment 
+        comments={data.comments}
+        // comments={displayComments}
+        handleDeleteComment={handleDeleteComment}
+      />}
     </div>
   );
 }
 
-function UserComment() {
-  const { user, token } = useAuth();
-  const { error, loading, data } = useGetData(`visitors/${user}`, token);
-
-  let comments;
-
-  if (data) {
-    comments = data.comments;
-    // console.log(comments);
-  }
+function UserComment({ comments, handleDeleteComment }) {
 
   return (
     <div>Seus comentários:
-      {data && comments.map(comment => 
+      {comments.map(comment => 
         <article key={comment.id}>
+          <Button 
+            type="button"
+            text={"deletar"}
+            handleClick={() => handleDeleteComment(comment.id, comment.postId)}
+          />
           <p>{prettifyDate(comment.createdAt, "fullDate")}</p>
           <p>{comment.content}</p>
           <p>Post: </p>
@@ -111,14 +120,6 @@ function EditUser({ userEmail, token, endpoint }) {
       setData(formJson);
     }
   };
-
-  if (error) {
-    console.log(error);
-  }
-
-  if (result) {
-    console.log(result);
-  }
 
   return (
     <div>
