@@ -1,5 +1,6 @@
 // React
 import { createContext, useCallback, useContext, useState } from "react";
+// Router
 import { useNavigate } from "react-router";
 
 
@@ -44,16 +45,16 @@ const AuthProvider = ({ children }) => {
     }
   }, [navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setToken("");
     setUser(null);
 
-    // Remove token from localStorage
+    // Remove from localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
     navigate("/");
-  };
+  }, [navigate]);
 
   const value = {
     token,
