@@ -4,28 +4,34 @@ import { useEffect, useState } from "react";
 
 
 // 
-export default function usePostData(formData, endpoint) {
+export default function usePostData(formData, endpoint, userToken) {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-
   useEffect(() => {
-    if (formData) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    if (formData && endpoint) {
       const postForm = async () => {
-        // http://localhost:8080/ for server
-        const url = `http://localhost:8080/${endpoint}`; // TODO: change PORT
+        const url = `http://localhost:8080/${endpoint}`; // TODO: change base URL to deploy
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
 
         setError(null);
         setIsLoading(true);
 
+        if (userToken) {
+          myHeaders.append("authorization", `bearer ${userToken}`);
+        }
+
         try {
           const response = await fetch(url, {
+            signal,
             method: "POST",
             mode: "cors",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: myHeaders,
             body: JSON.stringify(formData), 
           });
 
@@ -38,7 +44,7 @@ export default function usePostData(formData, endpoint) {
           
           setResult(res);
         } catch (err) {
-          console.error('usePostData error: ',err);
+          // console.error('usePostData error: ',err);
           setError(err);
         } finally {
           setIsLoading(false);
@@ -46,9 +52,17 @@ export default function usePostData(formData, endpoint) {
       }
 
       postForm();
-      return () => { setResult(null) };
     }
-  },[formData, endpoint]);
+
+    return () => { 
+      controller.abort();
+      
+      setError(null);
+      setResult(null);
+      setIsLoading(false);        
+    };
+
+  }, [formData, endpoint, userToken]);
 
   return { error, result, isLoading };
 };
