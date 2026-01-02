@@ -1,10 +1,13 @@
 // Main
 import App from "./App";
+// 
 import Home from "../pages/Home";
 import Posts from "../pages/Posts";
 import SignUp from "../pages/SignUp";
 import LogIn from "../pages/LogIn";
+// 
 import User from "../pages/User";
+// 
 import Author from "../pages/Author";
 
 
@@ -21,7 +24,7 @@ const routes = [
       { path: "log-in", Component: LogIn },
       { path: "posts/:postId?", Component: Posts },
       { path: "user/:username", Component: User },
-      { path: "author/:username", Component: Author },
+      { path: "author/:username/:createPost?/:editPostId?", Component: Author },
     ],
   },
 ];
