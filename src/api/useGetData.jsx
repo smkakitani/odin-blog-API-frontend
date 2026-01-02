@@ -1,48 +1,65 @@
 // React
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
 
 
 // 
-export default function useGetData(endpoint) {
+export default function useGetData(endpoint, userToken) {
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // const endpoint = "posts" // authors/:authorId
+  const fetchData = useCallback(async () => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    
+    setLoading(true);
+    setError(null);
 
-  useEffect(() => {
-    if (endpoint) {
-      const fetchData = async () => {
-        const url = `http://localhost:8080/${endpoint}`;
-        setError(null);
-        // setLoading(true);
-
-        try {
-          const response = await fetch(url, { method: "GET" });
-          console.log("calling useGetData");
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            throw new Error(response.status);
-          }
-          
-          // console.dir(data);
-          setData(data);
-        } catch (err) {
-          console.error('catching error xD',err);
-          setError(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData();
+    const url = `http://localhost:8080/${endpoint}`; // TODO: change base URL to deploy
+    const myHeaders = new Headers();
+    
+    if (userToken) {
+      myHeaders.append("authorization", `bearer ${userToken}`);
     }
 
-    return () => { setData(null)};
-    
-  }, [endpoint]);
+    try {
+      const response = await fetch(url, { 
+        signal,
+        method: "GET",
+        headers: myHeaders,
+      });
+      // console.log("calling useGetData endpoint: ", endpoint);
 
-  return { error, loading, data };
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw res;
+      }
+      
+      setData(res);
+    } catch (err) {
+      // Won't setError() when aborted
+      if (signal.aborted) {
+        // console.log("signal aborted!");
+        return;
+      }
+
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, userToken]);
+
+  // Fetch on mount?
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Manual refetch 
+  const refetchData = useCallback(async () => {
+    await fetchData();
+  }, [fetchData]);  
+
+  return { error, loading, data, refetchData };
 }
