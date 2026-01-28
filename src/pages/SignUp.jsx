@@ -96,8 +96,9 @@ function SignUp() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (result?.status === 200) {
+    if (result?.status === 201) {
     // Redirect user after successful sign up
+    
     navigate("/log-in");
     }
   },[result, navigate]);
@@ -124,7 +125,7 @@ function SignUp() {
   
   return (
     <div>
-      Sign up here!
+      <h2>Sign up!</h2>
       <Form 
         handleSubmit={handlePost}
         buttonText={"sign up"}

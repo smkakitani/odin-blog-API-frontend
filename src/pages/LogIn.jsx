@@ -69,8 +69,9 @@ function LogIn() {
   }
 
   return (
-    <div>Log in
-      <Form 
+    <div>
+      <h2>Log in</h2>
+      <Form
         handleSubmit={handleLogin}
         buttonText={"log in"}
         isError={error}
