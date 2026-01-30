@@ -8,6 +8,8 @@ import usePostData from "../api/usePostData";
 // Components
 import Button from "../components/Button";
 import RenderHtml from "../components/RenderHtml";
+// Lucide icons
+import { ChevronRight, ChevronDown } from 'lucide-react';
 // React | Router
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
@@ -58,6 +60,7 @@ function Posts() {
   );
 }
 
+const svgSize = "20px";
 const Aside = styled.aside`
   width: 125px;
 
@@ -70,21 +73,48 @@ const Aside = styled.aside`
   
   & button {
     cursor: pointer;
+    display: flex;
+    align-items: center;
 
     font-size: 1.25rem;
     /* font-weight: 500; */
 
-    color: red;
+    color: #ff3985;
     background-color: rgba(255, 255, 255, 0);
     border: 1px solid transparent;
 
     transition: border-color 0.25s;
   }
+  & button > span {
+    display: flex;
+  }
+  & .lucide {
+    width: ${svgSize};
+    height: ${svgSize};
+    stroke-width: 3px;
+  }
   & ul {
     list-style: none;
+    /* display: flex; */
+  }
+  & > ul > li {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
   & > ul > li > ul {
     font-size: small;
+    text-align: start;
+    padding-left: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  & svg {
+    display: inline;
+    max-width: 100%;
   }
 `;
 
@@ -100,7 +130,9 @@ function PostsPreview({ posts }) {
       <p>~ posts ~</p>
       {<ul>
         <li>
-          <button onClick={handleToggle}>2025</button>
+          <button onClick={handleToggle}>
+            <span>{isOpen ? <ChevronDown /> : <ChevronRight />}</span>2025
+          </button>
           <ul>
             {isOpen && posts.map((post) => (
               <li key={post.id}>
@@ -192,7 +224,7 @@ function DisplayPost({ post, user, token, onLogout }) {
           token={token}
           handleSubmit={handleSubmit}
         />}
-        {(data && (commentList?.length === 0)) ? <p>sem comentários</p> : <p>commentários({post._count.comments})</p>}
+        {(data && (commentList?.length === 0)) ? <p>sem comentários</p> : <p>comentários({post._count.comments})</p>}
         {isLoading && <p>loadings com</p>}
         {(data && commentList) && commentList.map((comment) => (
           <DisplayComment 
