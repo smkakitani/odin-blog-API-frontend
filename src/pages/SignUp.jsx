@@ -61,7 +61,7 @@ function SignUp() {
       value: user.username,
       minLength: 4,
       maxLength: 32,
-      pattern: '[a-zA-Z\\d\\-_]{4,32}', // TODO: change length on server-side 
+      pattern: '[a-zA-Z\\d\\-_]{4,32}',
       labelText: "Username: ",
     },
     {
@@ -71,7 +71,6 @@ function SignUp() {
       value: user.email,
       minLength: 4,
       maxLength: 254,
-      // pattern: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, // TODO: validate
       labelText: "E-mail: ",
     },
     {
@@ -97,17 +96,13 @@ function SignUp() {
 
   useEffect(() => {
     if (result?.status === 201) {
-    // Redirect user after successful sign up
-    
+    // Redirect user after successful sign up    
     navigate("/log-in");
     }
   },[result, navigate]);
 
   const handlePost = async (e) => {
     e.preventDefault();
-
-    // TODO: insert frontend validation, then send to server
-    // const isValid = e.target.checkValidity();
 
     const form = new FormData(e.target);
     const formJson = Object.fromEntries(form.entries());
@@ -120,7 +115,6 @@ function SignUp() {
       ...user,
       [e.currentTarget.name]: e.currentTarget.value,
     });
-    // console.log(e.currentTarget.value);
   };
   
   return (
@@ -136,6 +130,7 @@ function SignUp() {
           <Field key={item.name}
             {...item}
             onChange={handleChange}
+            className={error?.err.some((error) => error.path === item.name) ? "invalid" : ""}
           />
         )}
       </Form>
