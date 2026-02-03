@@ -60,8 +60,6 @@ function LogIn() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // TODO: insert frontend validation, then send to server
-
     const form = new FormData(e.target);
     const formJson = Object.fromEntries(form.entries());
     
@@ -81,6 +79,7 @@ function LogIn() {
           <Field key={item.name}
             {...item}
             onChange={handleChange}
+            className={error ? "invalid" : ""}
           />
         )}
       </Form>
