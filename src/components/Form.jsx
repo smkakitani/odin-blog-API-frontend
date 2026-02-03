@@ -56,15 +56,17 @@ const InputStyle = styled.input`
   &:focus-visible {
     outline: 1px inset #8a2be2;
   }
+  &.invalid {
+    border-color: red;
+  }
 `;
 const Field = (props) => {
-  /* TODO: add visibility change for password */
 
   return (
     <label>{props.labelText}
       <InputStyle 
         onChange={props.onChange}
-        type={props.type} 
+        type={props.type}
         name={props.name}
         id={props.name}
         className={props.className}
@@ -73,7 +75,7 @@ const Field = (props) => {
         maxLength={props.maxLength}
         pattern={props.pattern}
 
-        required // all fields are required!?
+        required
       />
     </label>
   );
