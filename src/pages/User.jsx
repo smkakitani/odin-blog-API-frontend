@@ -1,5 +1,5 @@
 // Styles
-
+import styled from "styled-components";
 // React
 import { useEffect, useState } from "react";
 // Router
@@ -17,6 +17,16 @@ import useDelData from "../api/useDelData";
 
 
 // 
+const DivStyle = styled.div`  
+
+  & span.user {
+    color: #ff3985;
+  }
+  & a {
+    color: blueviolet;
+    text-decoration: underline;
+  }
+`;
 export default function User() {
   const { onLogout, user, token } = useAuth();
   const endpoint = `visitors/${user?.username}`;
@@ -38,12 +48,16 @@ export default function User() {
   }, [result, delError, refetchData]);
 
   const handleDeleteComment = async (commentId, postId) => {
-    const path = `posts/${postId}/comments/${commentId}`
-    await delData(path, token);
+    // User can cancel deleting their comment
+    if (window.confirm("Deletar este comentário?")) {
+      const path = `posts/${postId}/comments/${commentId}`
+      await delData(path, token);
+    }    
   };
 
   return (
-    <div>Olá, {user?.username || "unknown"} 
+    <DivStyle>
+      <h2>Olá, <span className="user">{user?.username || "unknown"}</span>!</h2>
       <Link to="/" onClick={onLogout}>log-out</Link>
       {loading && <p>loading your data...</p>}
       {data && <EditUser 
@@ -53,31 +67,72 @@ export default function User() {
       />}
       {data && <UserComment 
         comments={data.comments}
+        username={data.username}
         // comments={displayComments}
         handleDeleteComment={handleDeleteComment}
       />}
-    </div>
+    </DivStyle>
   );
 }
 
-function UserComment({ comments, handleDeleteComment }) {
+const DivComments = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
 
+  & h3 {
+    padding-top: 1rem;
+  }
+`;
+const ArticleStyle = styled.article`
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: 1fr 1fr minmax(max-content, 2fr);
+  column-gap: 1em;
+  justify-items: start;
+
+  border-top: 3px ridge rgb(58, 12, 102);
+
+  padding-top: 0.5em;
+
+  .post {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .user {
+    grid-column: 2;
+    grid-row: 2;
+
+    font-size: 0.9rem;
+  }
+  .userComment {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  button {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    place-self: center;
+  }
+`;
+function UserComment({ username, comments, handleDeleteComment }) {
   return (
-    <div>Seus comentários:
+    <DivComments>
+      <h3>Seus comentários:</h3>
       {comments.map(comment => 
-        <article key={comment.id}>
+        <ArticleStyle key={comment.id}>
           <Button 
             type="button"
-            text={"deletar"}
+            text={"✖ deletar"}
             handleClick={() => handleDeleteComment(comment.id, comment.postId)}
           />
-          <p>{prettifyDate(comment.createdAt, "fullDate")}</p>
-          <p>{comment.content}</p>
-          <p>Post: </p>
-          <Link to={"/posts/" + comment.post.id}>{comment.post.title}</Link>
-        </article>
+          <p className="post"><Link to={"/posts/" + comment.post.id}>{comment.post.title}</Link></p>
+          <p className="user">{username}  &#128921;  {prettifyDate(comment.createdAt, "date")}</p>
+          <p className="userComment">{comment.content}</p>
+        </ArticleStyle>
       )}
-    </div>
+    </DivComments>
   );
 }
 
@@ -108,7 +163,6 @@ function EditUser({ userEmail, token, endpoint }) {
       });
     }
 
-    // TODO: insert frontend validation, then send to server
     const form = new FormData(e.target);
     const formJson = Object.fromEntries(form.entries());
 
