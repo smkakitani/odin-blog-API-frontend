@@ -2,9 +2,10 @@
 import styled from "styled-components";
 // Custom Hook | utils
 import useGetData from "../api/useGetData";
+import usePostData from "../api/usePostData";
+import useDelData from "../api/useDelData";
 import { prettifyDate } from "../utils/lib";
 import { useAuth } from "../utils/AuthContext";
-import usePostData from "../api/usePostData";
 // Components
 import Button from "../components/Button";
 import RenderHtml from "../components/RenderHtml";
@@ -20,7 +21,7 @@ import { Link, useParams } from "react-router";
 const Grid = styled.div`
   display: grid;
   grid-template-columns: max-content 3fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: max-content 1fr;
   grid-column-gap: 1rem;
 `;
 
@@ -65,8 +66,6 @@ const Aside = styled.aside`
   width: 125px;
 
   grid-column: 1;
-  /* grid-row: 1 / -1; */
-  /* align-self: center; */
 
   background-color: rgba(60, 5, 111, 0.8);
   border: 2px solid rgb(58, 12, 102);
@@ -77,7 +76,6 @@ const Aside = styled.aside`
     align-items: center;
 
     font-size: 1.25rem;
-    /* font-weight: 500; */
 
     color: #ff3985;
     background-color: rgba(255, 255, 255, 0);
@@ -95,7 +93,6 @@ const Aside = styled.aside`
   }
   & ul {
     list-style: none;
-    /* display: flex; */
   }
   & > ul > li {
     width: 100%;
@@ -150,7 +147,6 @@ const ArticlePost = styled.article`
   display: grid;
   grid-template-rows: max-content 1fr 4fr 1fr;
 
-  /* grid-row: 1 / 2; */
   background-color: rgba(60, 5, 111, 0.8);
   border: 2px solid rgb(58, 12, 102);
 
@@ -166,16 +162,14 @@ const ArticleComment = styled.article`
   grid-row: 2;
 
   padding-top: 1rem;
-
-  /* display: flex;
-  flex-direction: column; */
 `;
 function DisplayPost({ post, user, token, onLogout }) {
   const { error, loading, data } = useGetData(`posts/${post.id}/comments`);
   const [userComment, setUserComment] = useState(null);
   const { error: postError, result, isLoading } = usePostData(userComment, `posts/${post.id}/comments`, token);
+  const { error: delError, result: delResult, delData } = useDelData();
   const [commentList, setCommentList] = useState([]);
-
+  const [newComment, setNewComment] = useState("");
   // Get triggered when user tries to send comment on post 
   useEffect(() => {
     if (postError?.status === 401) {
@@ -196,14 +190,36 @@ function DisplayPost({ post, user, token, onLogout }) {
     }
   }, [result]);
 
+  useEffect(() => {
+    if (error?.status === 401 || delError?.status === 401) {
+      onLogout();
+    }
+  }, [error, delError, onLogout]);
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
 
     const form = new FormData(e.target);
     const formJson = Object.fromEntries(form.entries());
     
     // console.log(formJson);
     setUserComment(formJson);
+  };
+
+  const handleChange = (e) => {
+    setNewComment(e.currentTarget.value);
+  };
+
+  const handleDeleteComment = async (commentId, postId) => {
+    // User can cancel deleting their comment
+    if (window.confirm("Deletar este comentário?")) {
+      const path = `posts/${postId}/comments/${commentId}`
+      await delData(path, token);
+
+      setCommentList(
+        commentList.filter(cl => cl.id !== commentId)
+      );
+    }
   };
 
   if (loading) return <p>Loading post...</p>;
@@ -223,13 +239,17 @@ function DisplayPost({ post, user, token, onLogout }) {
         {(user?.type === "user") && <CreateComment 
           token={token}
           handleSubmit={handleSubmit}
+          newComment={newComment}
+          handleChange={handleChange}
         />}
         {(data && (commentList?.length === 0)) ? <p>sem comentários</p> : <p>comentários({post._count.comments})</p>}
         {isLoading && <p>loadings com</p>}
         {(data && commentList) && commentList.map((comment) => (
-          <DisplayComment 
-            {...comment}
-            key={comment.id}        
+          <DisplayComment
+            comment={comment}
+            key={comment.id}
+            user={user}
+            handleDeleteComment={handleDeleteComment}
           />
         ))}
       </ArticleComment>
@@ -237,15 +257,19 @@ function DisplayPost({ post, user, token, onLogout }) {
   );
 }
 
-const size = "40px"
+const size = "40px";
+const ButtonDelete = styled(Button)`
+  background: transparent;
+  border: none;
+  padding: 0 1em;
+  font-size: 0.8rem;
+`;
 const StyledSection = styled.section`
   display: grid;
   grid-template-columns: max-content 5fr;
   grid-column-gap: 1rem;
-  /* grid-template-rows: 1fr ; */
 
   margin-top: 1.5rem;
-  /* border: 1px solid rgb(58, 12, 102); */
   text-align: start;
 
   & > div:nth-of-type(1) {
@@ -261,15 +285,12 @@ const StyledSection = styled.section`
     border-radius: 50%;
 
     font-size: 2rem;
-    /* text-align: center; */
     margin: auto;
   }
   & > p {
-    /* font-size: 0.9rem; */
     margin-left: 1rem;
   }
   & span.user {
-    /* color: aliceblue; */
     font-weight: bolder;
     font-size: 1.2rem;
   }
@@ -277,11 +298,18 @@ const StyledSection = styled.section`
     font-size: 0.8rem;
   }
 `;
-function DisplayComment(comment) {
+function DisplayComment({ comment, user, handleDeleteComment }) {
   return (
     <StyledSection>
       <div>{comment.username.username.at(0)}</div>
-      <div><span className="user">{comment.username.username} •</span> <span className="date">{prettifyDate(comment.createdAt)}</span></div>
+      <div>
+        <span className="user">{comment.username.username} • </span>
+        <span className="date">{prettifyDate(comment.createdAt)}</span>
+        {(comment.usernameId === user?.id) && <ButtonDelete
+          text={"remover comentário"}
+          handleClick={() => handleDeleteComment(comment.id, comment.postId)}
+        ></ButtonDelete>}
+        </div>
       <p>{comment.content}</p>
     </StyledSection>
   );
@@ -311,16 +339,14 @@ const StyledForm = styled.form`
     resize: none;
 
     border: 2px solid rgb(58, 12, 102);
-    border-radius: 0.3em;
+    border-radius: 3px;
+  }
+  & textarea:focus, textarea:focus-visible {
+    box-shadow: 0px 0px 13px 3px #8a2be2;
+    outline: 1px inset #8a2be2;
   }
 `;
-function CreateComment({ token, handleSubmit }) {
-  // TODO: after submit, reset <textarea>!
-  const [comment, setComment] = useState("");
-
-  const handleChange = (e) => {
-    setComment(e.currentTarget.value);
-  };
+function CreateComment({ token, handleSubmit, newComment, handleChange }) {
 
   return (
     <StyledPostCommentDiv>
@@ -328,22 +354,22 @@ function CreateComment({ token, handleSubmit }) {
       <StyledForm onSubmit={handleSubmit}>
         <label>
           <textarea 
-            cols={40}
-            rows={10}
+            // cols={40}
+            // rows={10}
             name="content" 
             id="newComment"
-            value={comment}
+            value={newComment}
             disabled={!token}
-            onChange={handleChange}></textarea>
+            onChange={handleChange}
+          ></textarea>
         </label>
-        <span>{comment.length} caractere{comment.length >= 2 ? "s" : ""}</span>
+        <span>{newComment.length} caractere{newComment.length >= 2 ? "s" : ""}</span>
         <Button 
           type={"submit"} 
-          isDisabled={comment.length === 0}
+          isDisabled={newComment.length === 0}
           text={"comentar"}
         />
       </StyledForm>
-      {/* <p>{comment.length} caractere{comment.length >= 2 ? "s" : ""}</p> */}
     </StyledPostCommentDiv>
   );
 }
