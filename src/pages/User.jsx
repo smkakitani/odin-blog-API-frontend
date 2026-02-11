@@ -17,7 +17,10 @@ import useDelData from "../api/useDelData";
 
 
 // 
-const DivStyle = styled.div`  
+const DivStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 
   & span.user {
     color: #ff3985;
@@ -57,8 +60,10 @@ export default function User() {
 
   return (
     <DivStyle>
-      <h2>Olá, <span className="user">{user?.username || "unknown"}</span>!</h2>
-      <Link to="/" onClick={onLogout}>log-out</Link>
+      <div>
+        <h2>Olá, <span className="user">{user?.username || "unknown"}</span>!</h2>
+        <Link to="/" onClick={onLogout}>log-out</Link>
+      </div>
       {loading && <p>loading your data...</p>}
       {data && <EditUser 
         userEmail={data?.email}
@@ -79,7 +84,9 @@ const DivComments = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  align-items: center;
+  /* align-items: center; */
+
+  background-color: rgba(60, 5, 111, 0.8);
 
   & h3 {
     padding-top: 1rem;
@@ -136,6 +143,29 @@ function UserComment({ username, comments, handleDeleteComment }) {
   );
 }
 
+const FormEdit = styled(Form)`
+  flex-direction: row;
+  justify-content: center;
+
+  & button {
+    margin-top: 0;
+  }
+`;
+const InputStyle = styled.input`
+  border: 1px inset #8a2be2;
+
+  margin-left: 0.5rem;
+
+  &:focus {
+    box-shadow: 0px 0px 13px 3px #8a2be2;
+  }
+  &:focus-visible {
+    outline: 1px inset #8a2be2;
+  }
+  &.invalid {
+    border-color: red;
+  }
+`;
 function EditUser({ userEmail, token, endpoint }) {
   const [data, setData] = useState(null);
   const { error, isLoading, result } = usePutData(data, endpoint, token);
@@ -177,7 +207,7 @@ function EditUser({ userEmail, token, endpoint }) {
 
   return (
     <div>
-      <Form 
+      <FormEdit 
         handleSubmit={handleSubmit}
         buttonText={isEditing ? "salvar" : "editar"}
         isError={error}
@@ -186,7 +216,7 @@ function EditUser({ userEmail, token, endpoint }) {
       >
         <label>e-mail:{" "}
           {isEditing ? (
-            <input 
+            <InputStyle 
               onChange={handleChange}
               type="email"
               name="email"
@@ -197,7 +227,7 @@ function EditUser({ userEmail, token, endpoint }) {
             <span>{userEmail}</span>
           )}
         </label>       
-      </Form>
+      </FormEdit>
     </div>
   );
 }
