@@ -65,8 +65,9 @@ export default function Author() {
 }
 
 const DivPosts = styled.div`
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 2em;
 
   padding-top: 1em;
 
@@ -128,7 +129,7 @@ function Post(props) {
     <ArticlePost>
       <h3>{props.title}</h3>
       {props._count.comments > 1 ? <p>{props._count.comments} comentários</p> : <p>{props._count.comments} comentário</p>}
-      <p>{prettifyDate(props.createdAt, "fullDate")}</p>
+      <p>criado em: {prettifyDate(props.createdAt, "fullDate")}</p>
       <Link to={"post/" + props.id} >editar</Link>
     </ArticlePost>
   );
