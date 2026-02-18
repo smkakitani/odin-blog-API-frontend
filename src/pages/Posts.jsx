@@ -150,11 +150,16 @@ const ArticlePost = styled.article`
   background-color: rgba(60, 5, 111, 0.8);
   border: 2px solid rgb(58, 12, 102);
 
+  padding: 0 1em;
+
   & > h3 {
     font-size: 1.7rem;
   }
   & > p.date {
     font-style: italic;
+  }
+  & > p.author {
+    align-self: center;
   }
 `;
 const ArticleComment = styled.article`
@@ -230,7 +235,7 @@ function DisplayPost({ post, user, token, onLogout }) {
         <h3>{post.title}</h3>
         <p className="date">Criado em {prettifyDate(post.createdAt, "fullDate")}</p>
         <RenderHtml display={post.content}/>
-        <p>Por {post.author.firstName + " " + post.author.lastName}</p>
+        <p className="author">Por {post.author.firstName + " " + post.author.lastName}</p>
       </ArticlePost>
       {/* <hr /> */}
       {/* TODO: comments count to be up to date */}
