@@ -24,7 +24,6 @@ const Grid = styled.div`
   grid-template-rows: max-content 1fr;
   grid-column-gap: 1rem;
 `;
-
 function Posts() {
   const { user, token, onLogout } = useAuth();
   const { error, loading, data } = useGetData("posts");
@@ -113,33 +112,57 @@ const Aside = styled.aside`
     display: inline;
     max-width: 100%;
   }
-`;
-
-function PostsPreview({ posts }) {
-  // TODO: fix years 
-  const [isOpen, setIsOpen] = useState(false);
-  const handleToggle = () => {
-    setIsOpen(!isOpen)
+  & a:hover {
+    color: #ff3985;
   }
+`;
+function PostsPreview({ posts }) {
+  const years = [];
+  posts.forEach((post) => {
+    const postYear = prettifyDate(post.createdAt, "year");    
+    
+    if (!years.includes(postYear)) {
+      years.push(postYear);
+    }
+  });
 
   return (
     <Aside>
       <p>~ posts ~</p>
-      {<ul>
-        <li>
-          <button onClick={handleToggle}>
-            <span>{isOpen ? <ChevronDown /> : <ChevronRight />}</span>2025
-          </button>
-          <ul>
-            {isOpen && posts.map((post) => (
-              <li key={post.id}>
-                <Link to={`/posts/${post.id}`}>{post.title}</Link>
-              </li>
-            ))}
-          </ul>
-        </li>
-      </ul>}
+      <ul>
+        {years.map(year =>
+          <PostByYear 
+            key={year}
+            year={year}
+            posts={posts}
+          />
+        )}
+      </ul>
     </Aside>
+  );
+}
+
+function PostByYear({ year, posts }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <li>
+      <button onClick={() => setIsOpen(!isOpen)}>
+        <span>{isOpen ? <ChevronDown /> : <ChevronRight />}</span>
+        {year}
+      </button>
+      <ul>
+        {isOpen && posts.map((post) => {
+          if ((prettifyDate(post.createdAt, "year")) === year) {
+            return (
+              <li key={post.id}>
+                <Link to={`/posts/${post.id}`} >{post.title}</Link>
+              </li>
+            );
+          }
+        })}
+      </ul>
+    </li>
   );
 }
 
@@ -321,8 +344,6 @@ function DisplayComment({ comment, user, handleDeleteComment }) {
 }
 
 const StyledPostCommentDiv = styled.div`
-  
-
   /* margin-top: 1rem; */
 `;
 const StyledForm = styled.form`
@@ -359,8 +380,6 @@ function CreateComment({ token, handleSubmit, newComment, handleChange }) {
       <StyledForm onSubmit={handleSubmit}>
         <label>
           <textarea 
-            // cols={40}
-            // rows={10}
             name="content" 
             id="newComment"
             value={newComment}
