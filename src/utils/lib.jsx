@@ -23,6 +23,11 @@ function prettifyDate(date, options) {
         Full date format: day ("9"),month ("December"), 2000 -> and depending on user's location 
       */
       return new Date(date).toLocaleDateString(undefined, opt/* { hourCycle: "h23" } */);
+    case "year":
+      /* 
+        Year: "2019"
+      */
+      return new Date(date).toLocaleDateString(undefined, { year: "numeric" });
     default:
       /* 
         "date" as default
