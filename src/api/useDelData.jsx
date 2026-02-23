@@ -17,6 +17,7 @@ export default function useDelData() {
     const controller = new AbortController();
     const signal = controller.signal;
     
+    setError(null);
     setLoading(true);
 
     const url = `http://localhost:8080/${endpoint}`;
