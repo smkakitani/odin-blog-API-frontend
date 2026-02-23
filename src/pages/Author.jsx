@@ -1,16 +1,18 @@
 // Styles
 import styled from "styled-components";
 // React
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 // Router
 import { Link, useParams } from "react-router";
 // Components
+import { Form } from "../components/Form";
 import EditPost from "./EditPost";
 import CreatePost from "./CreatePost";
 // Custom hook
 import { useAuth } from "../utils/AuthContext";
-import useGetData from "../api/useGetData";
 import { prettifyDate } from "../utils/lib";
+import useGetData from "../api/useGetData";
+import usePutData from "../api/usePutData";
 
 
 
@@ -29,7 +31,9 @@ const DivStyle = styled.div`
 `;
 export default function Author() {
   const { onLogout, user, token } = useAuth();
-  const { error, loading, data } = useGetData(`posts/${user?.id}`, token);
+  const endpoint = `posts/${user?.id}`;
+  const { error, loading, data } = useGetData(endpoint, token);
+  const { data: authorData } = useGetData(`authors/${user?.id}`, token);
   // 
   const { editPostId, createPost } = useParams();
 
@@ -43,6 +47,12 @@ export default function Author() {
     <DivStyle>
       <h2>Olá, <span className="author">{user?.username || "unknown"}</span>!</h2>
       <Link to="/" onClick={onLogout}>log-out</Link>
+      {!createPost && (authorData && <EditAuthor 
+        authorData={authorData}
+        user={user}
+        token={token}
+      />)}
+
       {!createPost && <Link to="post" >criar post</Link>}
 
       {(data && editPostId) ? (
@@ -61,6 +71,84 @@ export default function Author() {
         />
       )}
     </DivStyle>
+  );
+}
+
+const DivEdit = styled.div`
+
+`;
+const FormEdit = styled(Form)`
+
+`;
+const TextareaStyle = styled.textarea`
+  background-color: rgba(60, 5, 111, 0.8);
+
+  width: 30em;
+  height: 8em;
+  resize: none;
+
+  padding: 0.25rem 0.5rem;
+
+  border: 2px solid rgb(58, 12, 102);
+  border-radius: 3px;
+`;
+function EditAuthor({ authorData, user, token }) {  
+  const [isEditing, setIsEditing] = useState(false);
+  const [newBio, setNewBio] = useState(authorData?.bio);
+  const [newData, setNewData] = useState(null);
+  const endpoint = `authors/${user.id}`;
+  const { error } = usePutData(newData, endpoint, token);
+  
+  const handleSubmit = async (e) => {
+    // e.preventDefault();
+
+    setIsEditing(!isEditing);
+
+    if (error) {
+      setNewBio(authorData?.bio);
+    }    
+
+    if (isEditing) {
+      if (authorData.bio === newBio) {
+        e.preventDefault();
+        return;
+      }
+
+      const form = new FormData(e.target);
+      const formJson = Object.fromEntries(form.entries());
+      console.log(formJson);
+
+      setNewData(formJson);
+      return;
+    }
+
+    e.preventDefault();
+  };
+
+  const handleNewBio = (e) => {
+    setNewBio(e.target.value);
+  };
+
+  return (
+    <DivEdit>
+      <FormEdit 
+        handleSubmit={handleSubmit}
+        buttonText={isEditing ? "salvar" : "editar"}
+      >
+        <label>bio:{" "}
+          {isEditing ? (
+            <TextareaStyle 
+              name="bio" 
+              id="bio"
+              value={newBio}
+              onChange={handleNewBio}
+            ></TextareaStyle>
+          ) : (
+            <span>{authorData?.bio}</span>
+          )}
+        </label>
+      </FormEdit>
+    </DivEdit>
   );
 }
 
