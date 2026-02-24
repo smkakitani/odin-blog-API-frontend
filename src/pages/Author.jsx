@@ -61,6 +61,7 @@ export default function Author() {
           postId={editPostId}
           user={user}
           token={token}
+          onLogout={onLogout}
         />
       ) : createPost ? (
         <CreatePost />

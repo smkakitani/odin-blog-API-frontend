@@ -1,7 +1,7 @@
 // Styles
 import styled from "styled-components";
 // React
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 // Router
 import { Link } from "react-router";
 // Components
@@ -12,6 +12,7 @@ import { useAuth } from "../utils/AuthContext";
 import usePostData from "../api/usePostData";
 import RenderHtml from "../components/RenderHtml";
 import { prettifyDate } from "../utils/lib";
+import useGetData from "../api/useGetData";
 
 
 
@@ -27,10 +28,17 @@ const DivNewPost = styled.div`
   }
 `;
 export default function CreatePost() {
-  const { token } = useAuth();
+  const { onLogout, user, token } = useAuth();
   const [newPost, setNewPost] = useState(null);
+  const { error: userError } = useGetData(`authors/${user?.id}`, token);
   const { error, isLoading, result } = usePostData(newPost, `posts`, token);
   const editorRef = useRef(null);
+
+  useEffect(() => {
+    if (userError?.status === 401) {
+      onLogout();
+    }
+  }, [userError, onLogout]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -149,9 +157,9 @@ function NewPostForm({
             /> Sim
           </label>
         </FieldsetStyle>
-        {<TextEditor 
+        <TextEditor 
           ref={editorRef}
-        />}
+        />
         <Button 
           type="submit"
           text="criar post"
