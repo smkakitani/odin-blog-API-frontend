@@ -35,7 +35,7 @@ function Form({
   return (
     <FormStyle onSubmit={handleSubmit} className={className} noValidate>
       {children}
-      {isError && message.map((err) => <p key={err.path}>{err.msg}</p> )}      
+      {isError && message?.map((err) => <p key={err.path}>{err.msg}</p> )}      
       <ButtonStyle 
         type={"submit"}
         text={buttonText}
