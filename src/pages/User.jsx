@@ -45,8 +45,6 @@ export default function User() {
   useEffect(() => {
     if (result && delError === null) {
       refetchData();
-    } else {
-      console.log("tried to refetch user's comments but FAILED!!! ):");
     }
   }, [result, delError, refetchData]);
 
@@ -67,6 +65,7 @@ export default function User() {
       {loading && <p>loading your data...</p>}
       {data && <EditUser 
         userEmail={data?.email}
+        onLogout={onLogout}
         token={token}
         endpoint={endpoint}  
       />}
@@ -166,13 +165,19 @@ const InputStyle = styled.input`
     border-color: red;
   }
 `;
-function EditUser({ userEmail, token, endpoint }) {
+function EditUser({ userEmail, onLogout, token, endpoint }) {
   const [data, setData] = useState(null);
   const { error, isLoading, result } = usePutData(data, endpoint, token);
   const [isEditing, setIsEditing] = useState(false);
   const [userValue, setUserValue] = useState({
     email: userEmail,
   });
+
+  useEffect(() => {
+    if (error?.status === 401) {
+      onLogout();
+    }
+  }, [error, onLogout]);
 
   const handleChange = (e) => {
     setUserValue({
