@@ -2,7 +2,6 @@
 import '../styles/App.css';
 import styled from 'styled-components';
 // React
-// import { useState } from 'react';
 // Router
 import { Outlet } from 'react-router';
 // Components
@@ -16,7 +15,8 @@ import { AuthProvider } from '../utils/AuthContext'; // Authentication logic wit
 const Main = styled.main`
   color: rgb(144, 119, 235);
   background-color: rgba(108, 33, 179, 0.8);
-  border-radius: 0.4em;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
 
   padding: 1rem;
 
