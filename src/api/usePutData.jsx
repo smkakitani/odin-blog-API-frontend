@@ -44,7 +44,6 @@ export default function usePutData(formData, endpoint, userToken) {
 
           setResult(res);
         } catch (err) {
-          console.error('usePostData error: ',err);
           setError(err);
         } finally {
           setIsLoading(false);
