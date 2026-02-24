@@ -18,12 +18,16 @@ export default function TextEditor({ ref, onDirty, initialValue }) {
         initialValue={initialValue}
 
         init={{ 
-          width: 800,
-          height: 500,
-          resize: 'both',
+          // skin: 'oxide-dark'/* "borderless" */ /* 'fabric' */,
+          // min_width: '35%',
+          // max_width: 900,
+          // width: '50%',
+          min_height: 500,
+          max_height: 1000,
+          // resize: 'true', // enables vertical resizing
           menubar: true,
           plugins: [ /* Open-source plugins! */
-            'code', 'codesample', 'anchor', 'autolink', 'link', 'lists', 'advlist', 'charmap', 'emoticons', 'wordcount', 'preview',
+            'code', 'codesample', 'anchor', 'autolink', 'link', 'lists', 'advlist', 'charmap', 'emoticons', 'wordcount', 'preview', 'autoresize',
           ],
           toolbar_mode: 'wrap', 
           // toolbar_sticky: true,
