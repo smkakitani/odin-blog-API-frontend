@@ -8,16 +8,18 @@ import { useAuth } from "../utils/AuthContext";
 
 // 
 const NavStyle = styled.nav`
-  width: stretch;
-
   margin-top: 10vh;
 
-  background-color: #000000;
-  border: 1px solid white;
+  color: blueviolet;
+  background-color: rgba(108, 33, 179, 0.8);
+
+  /* border: 2px solid rgb(58, 12, 102); */
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
 `;
 const UlStyle = styled.ul`
   display: flex;
-  /* justify-content: space-evenly; */
+  justify-content: space-evenly;
   gap: 1rem;
 
   list-style: none;
@@ -27,17 +29,16 @@ const UlStyle = styled.ul`
 
   text-decoration: none;
 
-  li {
+  & li {
     padding: 0 0.5rem;
+
+    text-decoration: underline dotted;
 
     text-shadow: #8a2be2 0px 0px 5px
     , blueviolet 0px 0px 7px
     , blueviolet 0px 0px 10px
     , #FF2D95 0px 0px 10px
     , #FF2D95 0px 0px 15px
-    /* , #FF2D95 0px 0px 40px
-    , #FF2D95 0px 0px 50px
-    , #FF2D95 0px 0px 75px; */
   }
 `;
 const StyledLink = styled(Link)`
@@ -73,11 +74,11 @@ function NavBar() {
           <StyledLink to={menuList[2]}>{menuList[2]}</StyledLink>
         </li> : <li>
           <StyledLink to={user.type + "/" + user.username}>hi, {user.username}</StyledLink>
-        </li>}|
-        {/* Shows sign up if there's no user */}
-        {!token && <li>
-          <StyledLink to={menuList[3]}>{menuList[3]}</StyledLink>
         </li>}
+        {/* Shows sign up if there's no user */}
+        {!token && <>| <li>
+          <StyledLink to={menuList[3]}>{menuList[3]}</StyledLink>
+        </li></>}
       </UlStyle>
     </NavStyle>
   );
