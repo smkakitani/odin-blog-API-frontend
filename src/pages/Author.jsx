@@ -79,19 +79,31 @@ const DivEdit = styled.div`
 
 `;
 const FormEdit = styled(Form)`
+  & label {
+    display: flex;
+    flex-direction: column;
 
+    width: 90%;
+  }
 `;
 const TextareaStyle = styled.textarea`
-  background-color: rgba(60, 5, 111, 0.8);
+  display: block;
+  overflow: auto;
 
-  width: 30em;
-  height: 8em;
-  resize: none;
+  /* background-color: rgba(60, 5, 111, 0.8); */
+  background: none;
+
+  width: 100%;
+  height: 15em;
+  resize: vertical;
 
   padding: 0.25rem 0.5rem;
 
   border: 2px solid rgb(58, 12, 102);
   border-radius: 3px;
+`;
+const SpanBio = styled.span`
+  white-space: pre-wrap;
 `;
 function EditAuthor({ authorData, user, token }) {  
   const [isEditing, setIsEditing] = useState(false);
@@ -136,7 +148,7 @@ function EditAuthor({ authorData, user, token }) {
         handleSubmit={handleSubmit}
         buttonText={isEditing ? "salvar" : "editar"}
       >
-        <label>bio:{" "}
+        <label>sobre mim:{" "}
           {isEditing ? (
             <TextareaStyle 
               name="bio" 
@@ -145,7 +157,7 @@ function EditAuthor({ authorData, user, token }) {
               onChange={handleNewBio}
             ></TextareaStyle>
           ) : (
-            <span>{authorData?.bio}</span>
+            <SpanBio>{authorData?.bio}</SpanBio>
           )}
         </label>
       </FormEdit>
