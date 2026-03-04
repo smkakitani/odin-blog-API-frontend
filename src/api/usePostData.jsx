@@ -17,8 +17,8 @@ export default function usePostData(formData, endpoint, userToken) {
 
     if (formData && endpoint) {
       const postForm = async () => {
-        const url = `http://localhost:8080/${endpoint}`;
-        // const url = API_URL + endpoint;
+        // const url = `http://localhost:8080/${endpoint}`;
+        const url = API_URL + endpoint;
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 

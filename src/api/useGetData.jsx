@@ -18,8 +18,8 @@ export default function useGetData(endpoint, userToken) {
     setLoading(true);
     setError(null);
 
-    const url = `http://localhost:8080/${endpoint}`;
-    // const url = API_URL + endpoint;
+    // const url = `http://localhost:8080/${endpoint}`;
+    const url = API_URL + endpoint;
     const myHeaders = new Headers();
     
     if (userToken) {

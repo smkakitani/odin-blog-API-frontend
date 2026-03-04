@@ -26,8 +26,8 @@ export default function usePutData(formData, endpoint, userToken) {
       
       // console.log(formData, userToken);
       const putData = async () => {
-        const url = `http://localhost:8080/${endpoint}`;
-        // const url = API_URL + endpoint;
+        // const url = `http://localhost:8080/${endpoint}`;
+        const url = API_URL + endpoint;
 
         try {
           const response = await fetch(url, {

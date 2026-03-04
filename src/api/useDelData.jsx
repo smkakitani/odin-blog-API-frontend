@@ -22,8 +22,8 @@ export default function useDelData() {
     setError(null);
     setLoading(true);
 
-    const url = `http://localhost:8080/${endpoint}`;
-    // const url = API_URL + endpoint;
+    // const url = `http://localhost:8080/${endpoint}`;
+    const url = API_URL + endpoint;
     const myHeaders = new Headers();
     
     if (userToken) {
