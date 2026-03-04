@@ -1,5 +1,7 @@
 // React
 import { useEffect, useState } from "react";
+// Server
+import { API_URL } from "./api";
 
 
 
@@ -24,7 +26,8 @@ export default function usePutData(formData, endpoint, userToken) {
       
       // console.log(formData, userToken);
       const putData = async () => {
-        const url = `http://localhost:8080/${endpoint}`; // TODO: change PORT 
+        const url = `http://localhost:8080/${endpoint}`;
+        // const url = API_URL + endpoint;
 
         try {
           const response = await fetch(url, {

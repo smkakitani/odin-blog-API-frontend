@@ -1,5 +1,7 @@
 // React
 import { useEffect, useState } from "react";
+// Server
+import { API_URL } from "./api";
 
 
 
@@ -15,7 +17,8 @@ export default function usePostData(formData, endpoint, userToken) {
 
     if (formData && endpoint) {
       const postForm = async () => {
-        const url = `http://localhost:8080/${endpoint}`; // TODO: change base URL to deploy
+        const url = `http://localhost:8080/${endpoint}`;
+        // const url = API_URL + endpoint;
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 

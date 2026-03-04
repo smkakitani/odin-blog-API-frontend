@@ -1,5 +1,7 @@
 // React
 import { useCallback, useEffect, useState } from "react";
+// Server
+import { API_URL } from "./api";
 
 
 
@@ -16,7 +18,8 @@ export default function useGetData(endpoint, userToken) {
     setLoading(true);
     setError(null);
 
-    const url = `http://localhost:8080/${endpoint}`; // TODO: change base URL to deploy
+    const url = `http://localhost:8080/${endpoint}`;
+    // const url = API_URL + endpoint;
     const myHeaders = new Headers();
     
     if (userToken) {

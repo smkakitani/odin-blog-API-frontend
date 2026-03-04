@@ -1,5 +1,7 @@
 // React
 import { useCallback, useState } from "react";
+// Server
+import { API_URL } from "./api";
 
 
 
@@ -21,6 +23,7 @@ export default function useDelData() {
     setLoading(true);
 
     const url = `http://localhost:8080/${endpoint}`;
+    // const url = API_URL + endpoint;
     const myHeaders = new Headers();
     
     if (userToken) {
