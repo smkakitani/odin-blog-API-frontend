@@ -1,1 +1,1 @@
-export const API_URL = "http://odin-blog-api-backend-production-cbf9.up.railway.app/";
+export const API_URL = "https://odin-blog-api-backend-production-cbf9.up.railway.app/";
